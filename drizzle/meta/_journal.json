@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1785145877476,
+      "tag": "0000_little_scourge",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1785147852665,
+      "tag": "0001_amused_khan",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785148086930,
+      "tag": "0002_nice_stark_industries",
+      "breakpoints": true
+    }
+  ]
+}
