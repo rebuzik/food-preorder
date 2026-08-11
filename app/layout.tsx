@@ -8,9 +8,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Еда рядом — предзаказ готовых блюд",
+  title: "ReFreshTech — ассортимент на следующую неделю",
   description:
-    "Выберите блюда от Партика и Лаборатории еды. Без оплаты и обязательной покупки.",
+    "Анонимно выбирайте товары, которые хотите видеть в ассортименте ReFreshTech на следующей неделе.",
   other: {
     "codex-preview": "development",
   },

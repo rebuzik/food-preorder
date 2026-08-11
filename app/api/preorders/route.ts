@@ -3,37 +3,15 @@ import { listCatalogProducts } from "../../../lib/catalog.server";
 
 type IncomingItem = { productId?: string; quantity?: number };
 
-function normalizePhone(value: string) {
-  const digits = value.replace(/\D/g, "");
-  if (digits.length !== 11) return null;
-  if (digits.startsWith("8")) return `+7${digits.slice(1)}`;
-  if (digits.startsWith("7")) return `+${digits}`;
-  return null;
-}
-
 export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as {
-      name?: string;
-      phone?: string;
       items?: IncomingItem[];
+      wish?: string;
     };
-    const name = payload.name?.trim().slice(0, 80) ?? "";
-    const phone = normalizePhone(payload.phone ?? "");
-
-    if (name.length < 2)
-      return Response.json(
-        { error: "Укажите имя — хотя бы два символа." },
-        { status: 400 },
-      );
-    if (!phone)
-      return Response.json(
-        { error: "Проверьте номер телефона." },
-        { status: 400 },
-      );
     if (!Array.isArray(payload.items) || payload.items.length === 0)
       return Response.json(
-        { error: "Добавьте хотя бы одно блюдо." },
+        { error: "Выберите хотя бы один товар." },
         { status: 400 },
       );
 
@@ -41,12 +19,18 @@ export async function POST(request: Request) {
     const productById = new Map(
       products.map((product) => [product.id, product]),
     );
+    const unavailableProductIds = [...new Set(payload.items.map((item) => item.productId).filter((id): id is string => {
+      if (!id) return false;
+      const product = productById.get(id);
+      return !product || !product.available || product.supplierCatalogEnabled === false;
+    }))];
+    if (unavailableProductIds.length) return Response.json({ code: "products_unavailable", error: "Некоторые товары больше недоступны. Мы убрали их из выбора — остальные позиции сохранены.", unavailableProductIds }, { status: 409 });
     const items = payload.items.map((item) => {
       const product = item.productId
         ? productById.get(item.productId)
         : undefined;
       const quantity = Number(item.quantity);
-      if (!product || !product.available || !Number.isInteger(quantity))
+      if (!product || !Number.isInteger(quantity))
         throw new Error("Одна из позиций больше недоступна.");
       if (quantity < 1 || quantity > 20)
         throw new Error("Проверьте количество выбранных блюд.");
@@ -54,18 +38,14 @@ export async function POST(request: Request) {
     });
 
     const id = crypto.randomUUID();
-    const publicId = `ЕДА-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
-    const total = items.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0,
-    );
+    const publicId = `ГОЛОС-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
     const db = await getD1();
     await db.batch([
       db.prepare(
         `INSERT INTO preorders
-          (id, public_id, name, phone, total, status)
-         VALUES (?, ?, ?, ?, ?, 'new')`,
-      ).bind(id, publicId, name, phone, total),
+          (id, public_id, name, phone, wish, total, status)
+         VALUES (?, ?, ?, ?, ?, ?, 'new')`,
+      ).bind(id, publicId, "Анонимный голос", "—", String(payload.wish ?? "").trim().slice(0, 500), 0),
       ...items.map(({ product, quantity }) =>
         db.prepare(
           `INSERT INTO preorder_items
@@ -82,10 +62,10 @@ export async function POST(request: Request) {
         ),
       ),
     ]);
-    return Response.json({ publicId }, { status: 201 });
+    return Response.json({ voteId: publicId }, { status: 201 });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Не удалось сохранить предзаказ.";
+      error instanceof Error ? error.message : "Не удалось учесть голос.";
     return Response.json({ error: message }, { status: 400 });
   }
 }

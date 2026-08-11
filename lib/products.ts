@@ -1,15 +1,30 @@
-export type Supplier = "Партик" | "Лаборатория еды";
+export type Supplier = string;
 
 export type Product = {
   id: string;
   name: string;
   supplier: Supplier;
+  supplierId?: string | null;
+  supplierCatalogEnabled?: boolean;
   category: string;
   description: string;
   weight: string;
   price: number;
   image: string;
+  images?: string[];
+  externalKey?: string | null;
+  article?: string | null;
+  barcode?: string | null;
   available: boolean;
+};
+
+export type SupplierSummary = {
+  id: string;
+  name: string;
+  normalizedName: string;
+  catalogEnabled: boolean;
+  productCount: number;
+  activeProductCount: number;
 };
 
 export const defaultProducts: Product[] = [

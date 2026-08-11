@@ -1,4 +1,4 @@
-import { getChatGPTUser } from "../../../chatgpt-auth";
+import { getAuthorizedAdmin } from "../../../admin-auth";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const extensions: Record<string, string> = {
@@ -8,9 +8,9 @@ const extensions: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getAuthorizedAdmin();
   if (!user)
-    return Response.json({ error: "Требуется вход." }, { status: 401 });
+    return Response.json({ error: "Требуется вход администратора." }, { status: 401 });
 
   try {
     const formData = await request.formData();

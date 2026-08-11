@@ -22,6 +22,20 @@
       "when": 1785148086930,
       "tag": "0002_nice_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1785929055453,
+      "tag": "0003_redundant_grey_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1786372743560,
+      "tag": "0004_dark_daredevil",
+      "breakpoints": true
     }
   ]
 }
