@@ -2,16 +2,15 @@ import { desc } from "drizzle-orm";
 import { getDb } from "../../db";
 import { preorderItems, preorders } from "../../db/schema";
 import { listCatalogProducts, listSupplierSummaries } from "../../lib/catalog.server";
-import { hasAdminSession } from "../admin-auth";
-import { requireChatGPTUser } from "../chatgpt-auth";
+import { getAuthorizedAdmin } from "../admin-auth";
 import { AdminConsole } from "./admin-console";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const user = await requireChatGPTUser("/admin");
-  if (!(await hasAdminSession(user.email))) redirect("/admin/login");
+  const user = await getAuthorizedAdmin();
+  if (!user) redirect("/admin/login");
   const ordersPromise = getDb().then(async (db) => {
     const [orders, items] = await Promise.all([
       db.select().from(preorders).orderBy(desc(preorders.createdAt)),
