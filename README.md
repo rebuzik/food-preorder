@@ -60,6 +60,71 @@ Use `.dev.vars.example` as a template. Never commit real credentials.
 - `npm test` — build and run the rendered HTML test in Linux
 - `npm run db:generate` — generate Drizzle migrations after schema changes
 
+## Server deployment with Traefik
+
+The included `compose.yaml` connects the application to the external Traefik
+network, keeps D1 and R2 data in a named Docker volume, applies pending database
+migrations on every container start, and exposes port `3000` only inside Docker.
+
+1. Create the external network once if Traefik has not created it already:
+
+   ```bash
+   docker network create traefik-public
+   ```
+
+2. Copy the environment template and edit its values:
+
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+
+   `DOMAIN` must point to the server in DNS. `TRAEFIK_NETWORK` must exactly
+   match the Docker network used by Traefik. Generate a session secret with:
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+3. Build and start the service:
+
+   ```bash
+   docker compose up -d --build
+   docker compose ps
+   docker compose logs -f food-preorder
+   ```
+
+4. Open `https://${DOMAIN}/` and `https://${DOMAIN}/admin/login`.
+
+Traefik reaches the service at `http://food-preorder:3000` through the external
+network. Do not add a `ports` section unless direct host-port access is
+specifically needed. Updating the application is repeatable:
+
+```bash
+chmod +x update.sh
+./update.sh
+```
+
+The update script pulls only fast-forward changes, builds and restarts the
+service, waits for startup, checks the application from inside the container,
+and removes dangling Docker images. D1 migrations run automatically before the
+HTTP server starts. The script preserves the `food-preorder-data` volume.
+
+The `food-preorder-data` volume survives rebuilds and container replacement.
+Back it up before destructive server maintenance. To inspect connectivity:
+
+```bash
+docker network inspect "${TRAEFIK_NETWORK:-traefik-public}"
+docker compose exec food-preorder node -e "fetch('http://127.0.0.1:3000/').then(async r => console.log(r.status))"
+```
+
+Example volume backup from the project directory:
+
+```bash
+docker run --rm -v food-preorder-data:/data -v "$PWD:/backup" alpine \
+  tar czf /backup/food-preorder-backup.tar.gz -C /data .
+```
+
 ## References
 
 - [Vinext documentation](https://github.com/cloudflare/vinext)
