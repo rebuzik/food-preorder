@@ -27,18 +27,6 @@ interface ExecutionContext {
 
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const forwardedProtocol = request.headers
-      .get("x-forwarded-proto")
-      ?.split(",", 1)[0]
-      .trim()
-      .toLowerCase();
-    if (forwardedProtocol === "https" || forwardedProtocol === "http") {
-      const forwardedUrl = new URL(request.url);
-      if (forwardedUrl.protocol !== `${forwardedProtocol}:`) {
-        forwardedUrl.protocol = `${forwardedProtocol}:`;
-        request = new Request(forwardedUrl, request);
-      }
-    }
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {
