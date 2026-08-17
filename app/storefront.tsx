@@ -175,7 +175,14 @@ export function Storefront({ initialProducts }: { initialProducts: Product[] }) 
       </section>
 
       <section className="how-it-works" id="how"><div className="section-kicker">Как это работает</div><h2>Учтём ваши пожелания по еде — всё просто!</h2><ol><li><span>1</span><div><strong>Выберите товары</strong><p>Отметьте один или несколько товаров, которые хотели бы видеть в своём минимаркете.</p></div></li><li><span>2</span><div><strong>Отправьте пожелания анонимно</strong><p>Регистрация и личные данные не нужны — всё полностью анонимно и безопасно.</p></div></li><li><span>3</span><div><strong>Мы сформируем ассортимент</strong><p>Учтём ваши пожелания при выборе позиций на следующую неделю. Доставим товары в минимаркет при наличии у поставщиков.</p></div></li></ol></section>
-      <footer><a className="brand" href="#top"><img src="/rft-logo.svg" alt="ReFreshTech" /></a><p>Вы выбираете — мы формируем ассортимент.</p><div><a href="#products">Выбрать товары</a><a href="/admin">Для администратора</a></div></footer>
+      <footer>
+        <a className="brand" href="#top"><img src="/rft-logo.svg" alt="ReFreshTech" /></a>
+        <div className="footer-copy">
+          <p>Вы выбираете — мы формируем ассортимент.</p>
+          <p className="footer-legal"><span>Создание сайта — ММП</span><span>© ММП - 2026</span><span>Все права защищены</span></p>
+        </div>
+        <div className="footer-links"><a href="#products">Выбрать товары</a><a href="/admin">Для администратора</a></div>
+      </footer>
 
       {selectedProducts.length > 0 && <button className="floating-cart-bar" onClick={() => setPanelOpen(true)}><span className="floating-cart-icon"><HeartIcon filled /></span><span className="floating-cart-copy"><strong>Мой выбор</strong><small>{selectedProducts.length} товар(а)</small></span><strong className="floating-cart-total">Отправить пожелания →</strong></button>}
       {panelOpen && <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setPanelOpen(false)}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="selection-title">
