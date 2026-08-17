@@ -39,14 +39,6 @@ export const metadata: Metadata = {
   other: {
     "codex-preview": "development",
   },
-  icons: {
-    icon: [
-      { url: "/brand-favicon-32.png", type: "image/png", sizes: "32x32" },
-      { url: "/brand-favicon-192.png", type: "image/png", sizes: "192x192" },
-    ],
-    shortcut: "/brand-favicon-32.png",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
 };
 
 export default function RootLayout({
@@ -56,6 +48,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
+      <head>
+        <link rel="icon" href="/brand-favicon-32-v2.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/brand-favicon-192-v2.png" type="image/png" sizes="192x192" />
+        <link rel="shortcut icon" href="/brand-favicon-32-v2.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-v2.png" sizes="180x180" />
+      </head>
       <body className={`${geistSans.variable} antialiased`}>{children}</body>
     </html>
   );

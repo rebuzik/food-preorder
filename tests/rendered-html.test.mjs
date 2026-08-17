@@ -7,6 +7,9 @@ const developmentPreviewMeta =
 const openGraphImageMeta =
   /<meta(?=[^>]*\bproperty=["']og:image["'])(?=[^>]*\bcontent=["']https:\/\/food-preorder\.ru\/social-preview\.png["'])[^>]*>/i;
 
+const localFaviconLink =
+  /<link(?=[^>]*\brel=["']icon["'])(?=[^>]*\bhref=["']\/brand-favicon-32-v2\.png["'])[^>]*>/i;
+
 async function renderPage(url, cacheKey) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${cacheKey}-${process.pid}-${Date.now()}`);
@@ -37,6 +40,13 @@ test("renders development preview metadata", async () => {
     /^text\/html\b/i,
   );
   assert.match(await response.text(), developmentPreviewMeta);
+});
+
+test("renders a relative favicon URL", async () => {
+  const response = await renderPage("http://localhost/terms", "favicon");
+
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), localFaviconLink);
 });
 
 test("renders a rich social sharing preview", async () => {
