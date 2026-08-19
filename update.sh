@@ -9,7 +9,14 @@ if [[ ! -f .env ]]; then
 fi
 
 echo "🔄 1. Git pull..."
+before_update="$(git rev-parse HEAD)"
 git pull --ff-only
+after_update="$(git rev-parse HEAD)"
+
+if [[ "$before_update" != "$after_update" && "${FOOD_PREORDER_UPDATE_REEXEC:-0}" != "1" ]]; then
+  echo "🔁 update.sh changed — restarting the updated script..."
+  exec env FOOD_PREORDER_UPDATE_REEXEC=1 "$0"
+fi
 
 echo "🏗 2. Build production image..."
 docker compose build
