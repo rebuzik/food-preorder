@@ -13,15 +13,20 @@ FROM node:22-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
     PORT=3000 \
+    WRANGLER_PERSIST_ROOT=/data/wrangler \
     WRANGLER_SEND_METRICS=false
 
 WORKDIR /app
 
+COPY --chown=node:node --from=builder /app/package.json ./package.json
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/dist ./dist
 COPY --chown=node:node --from=builder /app/drizzle ./drizzle
 COPY --chown=node:node --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
-COPY --chown=node:node --from=builder /app/wrangler.server.jsonc ./wrangler.server.jsonc
+COPY --chown=node:node --from=builder /app/scripts/register-cloudflare-loader.mjs ./scripts/register-cloudflare-loader.mjs
+COPY --chown=node:node --from=builder /app/scripts/cloudflare-loader.mjs ./scripts/cloudflare-loader.mjs
+COPY --chown=node:node --from=builder /app/scripts/cloudflare-workers-node.mjs ./scripts/cloudflare-workers-node.mjs
+COPY --chown=node:node --from=builder /app/wrangler.runtime.jsonc ./wrangler.runtime.jsonc
 
 RUN mkdir -p /app/.wrangler /data/wrangler /data/runtime && \
     chmod +x ./scripts/docker-entrypoint.sh && \

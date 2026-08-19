@@ -50,6 +50,7 @@ Use `.dev.vars.example` as a template. Never commit real credentials.
 - `drizzle/` — database migrations
 - `.openai/hosting.json` — Sites bindings
 - `wrangler.local.jsonc` — local D1/R2 configuration
+- `wrangler.runtime.jsonc` — persisted D1/R2 bindings for the Node production runtime
 - `scripts/dev.ps1` — repeatable Windows setup and launch script
 
 ## Commands
@@ -57,6 +58,7 @@ Use `.dev.vars.example` as a template. Never commit real credentials.
 - `npm.cmd run dev:windows` — prepare and run locally on Windows
 - `npm run dev` — run the Vite/Vinext server in a Unix-compatible shell
 - `npm run build` — build and validate the Sites artifact in Linux
+- `npm start` — run the built application with the Vinext production server
 - `npm test` — build and run the rendered HTML test in Linux
 - `npm run db:generate` — generate Drizzle migrations after schema changes
 
@@ -65,6 +67,10 @@ Use `.dev.vars.example` as a template. Never commit real credentials.
 The included `compose.yaml` connects the application to the external Traefik
 network, keeps D1 and R2 data in a named Docker volume, applies pending database
 migrations on every container start, and exposes port `3000` only inside Docker.
+The HTTP process is the Vinext production server (`vinext start`), not
+`wrangler dev`. Persisted local D1/R2 bindings are attached to the Node process
+through Wrangler Platform Proxy and reuse the existing `/data/wrangler/v3`
+state from the Docker volume.
 
 1. Create the external network once if Traefik has not created it already:
 
@@ -106,9 +112,10 @@ chmod +x update.sh
 ```
 
 The update script pulls only fast-forward changes, builds and restarts the
-service, waits for startup, checks the application from inside the container,
-and removes dangling Docker images. D1 migrations run automatically before the
-HTTP server starts. The script preserves the `food-preorder-data` volume.
+service, waits for startup, verifies that the persisted database can serve the
+home page, confirms that PID 1 is `vinext start` rather than `wrangler dev`, and
+removes dangling Docker images. D1 migrations run automatically before the HTTP
+server starts. The script preserves the `food-preorder-data` volume.
 
 The `food-preorder-data` volume survives rebuilds and container replacement.
 Back it up before destructive server maintenance. To inspect connectivity:
